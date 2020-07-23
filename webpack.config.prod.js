@@ -1,14 +1,13 @@
 const path = require('path')
 const HtmlwebpackPlugin = require('html-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const webpack = require('webpack')
-const VueLoaderPlugin = require('vue-loader/lib/plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const PurifyCSS = require('purifycss-webpack')
 const glob = require('glob-all')
+const { merge } = require('webpack-merge')
+const baseConfig = require('./webpack.config.base')
 
-module.exports = {
+const prodConfig = {
 	// 入口文件
 	entry: './src/index.js',
 	// 会将index other合并到一个bundle中
@@ -21,87 +20,34 @@ module.exports = {
 	// 输出目录
 	output: {
 		path: path.resolve(__dirname, './dist'),
-		// filename: 'js/[name]_[chunkhash:8].js', // 开启HMR不支持chunkhash contenthash
-		filename: 'bundle.js',
+		filename: 'js/[name]_[chunkhash:8].js', // 开启HMR不支持chunkhash contenthash
 	},
-	mode: 'development', // 打包环境
-	devtool: 'cheap-module-eval-source-map', // 开发环境配置，生产不建议开启
-	devServer: {
-		contentBase: './dist',
-		open: true,
-		port: 8081,
-		hot: true,
-		hotOnly: true, // 即使HMR不生效，也不刷新浏览器
-		proxy: {
-			'/api': {
-				target: 'http://localhost:9091',
-			},
-		},
-	},
-	resolve: {
-		// 优化第三方组件库查找速度
-		modules: [path.resolve(__dirname, './node_modules')],
-		alias: {
-			'@': path.resolve(__dirname, './src'),
-			vue: path.resolve(
-				__dirname,
-				'./node_modules/vue/dist/vue.runtime.esm.js'
-			),
-		},
-		extensions: ['.js', '.json'], // 列表尽量少，导入语句尽量带上后缀
-	},
+	mode: 'production', // 打包环境
+	devtool: 'none', // 开发环境配置，生产不建议开启
 	// 优化cnd静态资源
 	// externals: {
 	//     vue: 'Vue'
 	// },
 	module: {
 		rules: [
-			{
-				test: /\.vue$/,
-				// 优化loader查找速度
-				include: path.resolve(__dirname, 'src'),
-				loader: 'vue-loader',
-			},
-			{
-				test: /\.js$/,
-				include: path.resolve(__dirname, 'src'),
-				loader: 'babel-loader',
-			},
-			{
-				test: /\.(png|jpe?g|svg|webp)/,
+            {
+				test: /\.css$/,
 				include: path.resolve(__dirname, 'src'),
 				use: [
 					{
-						loader: 'url-loader',
-						options: {
-							name: '[name]_[contenthash:8].[ext]',
-							esModule: false, // 解决图片地址被解析为[object module]
-							outputPath: 'images/',
-							// 小于2kb，才转为base64
-							limit: 2048,
-						},
-					},
-				],
-			},
-			{
-				test: /.(eot|ttf|woff|woff2|svg)/,
-				include: path.resolve(__dirname, 'src'),
-				use: [
-					{
-						loader: 'url-loader',
-						options: {
-							name: '[name]_[contenthash:8].[ext]',
-							outputPath: 'font/',
-							limit: 2048, // 字体文件采用base64方式
-						},
-					},
+                        loader: MiniCssExtractPlugin.loader,
+                        options: {
+                            publicPath: '../', // 解决独立出来的css中引入图片相对地址，地址会找不到
+                        }
+                    },
+					'css-loader',
+					'postcss-loader',
 				],
 			},
 			{
 				test: /\.less$/,
 				include: path.resolve(__dirname, 'src'),
 				use: [
-					// 'style-loader',
 					{
                         loader: MiniCssExtractPlugin.loader,
                         options: {
@@ -147,8 +93,7 @@ module.exports = {
 		// 		path.resolve(__dirname, './src/*.js'),
 		// 	]),
 		// }),
-		new CleanWebpackPlugin(),
-		new webpack.HotModuleReplacementPlugin(),
-		new VueLoaderPlugin(),
 	],
 }
+
+module.exports = merge(baseConfig, prodConfig)

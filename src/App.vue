@@ -3,6 +3,7 @@
         <div class="web-font">{{title}}</div>
         <img src="../src/assets/imgs/kitty.jpg" class="logo"/>
         <div class="logo"></div>
+        <p class="text">学些vue，哈哈哈哈</p>
     </div>
 </template>
 
@@ -16,6 +17,9 @@
     }
 </script>
 
-<style lang="less" scoped>
-
+<style lang="less">
+    .text{
+        color: green;
+        font-size: 20px;
+    }
 </style>
