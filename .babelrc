@@ -13,5 +13,6 @@
                 "useBuiltIns": "usage" //按需注⼊
             }
         ]
-    ]
+    ],
+    "plugins": ["@babel/plugin-syntax-dynamic-import"]
 }

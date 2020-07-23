@@ -28,18 +28,65 @@ const prodConfig = {
 	// externals: {
 	//     vue: 'Vue'
 	// },
+    // js tree shaking
+    // 代码分割
+	// optimization: {
+	// 	usedExports: true, // 哪些模块被使用了，在做打包, 生产环境默认开启
+	// 	splitChunks: {
+	// 		chunks: 'all', // 所有chunks代码公共的部分抽离出来成为一个单独的js
+	// 	},
+	// },
+	optimization: {
+		splitChunks: {
+			chunks: 'all', //对同步 initial，异步 async，所有的模块有效 all
+			minSize: 30000, //最⼩尺⼨，当模块⼤于30kb
+			maxSize: 0, //对模块进⾏⼆次分割时使⽤，不推荐使⽤
+			minChunks: 1, //打包⽣成的chunk⽂件最少有⼏个chunk引⽤了这个模块
+			maxAsyncRequests: 5, //最⼤异步请求数，默认5
+			maxInitialRequests: 3, //最⼤初始化请求书，⼊⼝⽂件同步请求，默认3
+			automaticNameDelimiter: '-', //打包分割符号
+			name: true, //打包后的名称，除了布尔值，还可以接收⼀个函数function
+			cacheGroups: {
+				//缓存组
+				vendors: {
+					test: /[\\/]node_modules[\\/]/,
+					name: 'vendor', // 要缓存的 分隔出来的 chunk 名称
+					priority: -10, //缓存组优先级 数字越⼤，优先级越⾼
+				},
+				vue: {
+					chunks: 'initial', // 必须三选⼀： "initial" | "all" | "async"(默认就是async)
+					test: /vue|vue-router|vuex/, // 正则规则验证，如果符合就提取 chunk,
+					name: 'vue',
+					minSize: 30000,
+					minChunks: 1,
+                },
+                // vchart: {
+                //     chunks: 'initial',
+                //     test: /v-charts\/lib\/line\.common|echarts/,
+                //     name: 'vcharts',
+                //     minSize: 10,
+				// 	minChunks: 1,
+                // },
+				default: {
+					minChunks: 2,
+					priority: -20,
+					reuseExistingChunk: true, //可设置是否重⽤该chunk
+				},
+			},
+		},
+	},
 	module: {
 		rules: [
-            {
+			{
 				test: /\.css$/,
 				include: path.resolve(__dirname, 'src'),
 				use: [
 					{
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            publicPath: '../', // 解决独立出来的css中引入图片相对地址，地址会找不到
-                        }
-                    },
+						loader: MiniCssExtractPlugin.loader,
+						options: {
+							publicPath: '../', // 解决独立出来的css中引入图片相对地址，地址会找不到
+						},
+					},
 					'css-loader',
 					'postcss-loader',
 				],
@@ -49,11 +96,11 @@ const prodConfig = {
 				include: path.resolve(__dirname, 'src'),
 				use: [
 					{
-                        loader: MiniCssExtractPlugin.loader,
-                        options: {
-                            publicPath: '../', // 解决独立出来的css中引入图片相对地址，地址会找不到
-                        }
-                    },
+						loader: MiniCssExtractPlugin.loader,
+						options: {
+							publicPath: '../', // 解决独立出来的css中引入图片相对地址，地址会找不到
+						},
+					},
 					'css-loader',
 					'postcss-loader',
 					'less-loader',
@@ -76,7 +123,6 @@ const prodConfig = {
 		// 抽离css到独立的文件
 		new MiniCssExtractPlugin({
 			filename: 'css/[name]_[contenthash:6].css',
-            chunkFilename: '[id].css',
 		}),
 		// 压缩css
 		new OptimizeCSSAssetsPlugin({

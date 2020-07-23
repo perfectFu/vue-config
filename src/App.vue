@@ -1,25 +1,15 @@
 <template>
-    <div>
-        <div class="web-font">{{title}}</div>
-        <img src="../src/assets/imgs/kitty.jpg" class="logo"/>
-        <div class="logo"></div>
-        <p class="text">学些vue，哈哈哈哈</p>
-    </div>
+	<div>
+        <router-link to="/">首页</router-link>
+        <router-link to="/about">关于</router-link>
+		<router-view></router-view>
+	</div>
 </template>
 
 <script>
-    export default {
-        data() {
-            return {
-                title: '琴棋书画不会，洗衣做饭嫌累！'
-            }
-        },
-    }
+export default {
+}
 </script>
 
-<style lang="less">
-    .text{
-        color: green;
-        font-size: 20px;
-    }
+<style>
 </style>
