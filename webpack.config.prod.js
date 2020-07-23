@@ -5,7 +5,11 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin')
 const PurifyCSS = require('purifycss-webpack')
 const glob = require('glob-all')
 const { merge } = require('webpack-merge')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const SpeedMeasurePlugin = require('speed-measure-webpack-plugin')
 const baseConfig = require('./webpack.config.base')
+const smp = new SpeedMeasurePlugin()
+const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
 
 const prodConfig = {
 	// 入口文件
@@ -37,6 +41,7 @@ const prodConfig = {
 	// 	},
 	// },
 	optimization: {
+        concatenateModules: true, //Scope Hoisting 作用域提示，尽可能的把模块放到一个函数中, 减少代码体积，加快执行速度
 		splitChunks: {
 			chunks: 'all', //对同步 initial，异步 async，所有的模块有效 all
 			minSize: 30000, //最⼩尺⼨，当模块⼤于30kb
@@ -138,8 +143,10 @@ const prodConfig = {
 		// 		path.resolve(__dirname, './src/*.html'), // 请注意，我们同样需要对 html ⽂件进⾏ tree shaking
 		// 		path.resolve(__dirname, './src/*.js'),
 		// 	]),
-		// }),
+        // }),
+        new BundleAnalyzerPlugin(), // 分析打包后的模块依赖关系
+        new HardSourceWebpackPlugin(), // 缓存某些不改动的库，作用类似于dll动态链接库
 	],
 }
 
-module.exports = merge(baseConfig, prodConfig)
+module.exports = smp.wrap(merge(baseConfig, prodConfig))
